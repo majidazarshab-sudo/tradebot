@@ -11,25 +11,47 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y python3-pip git zip unzip openjdk-17-jdk
-        pip install buildozer cython
+    # کش Buildozer/Gradle برای سریع‌تر شدن بیلدهای بعدی
+    - name: Cache .buildozer
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.buildozer
+          ~/.gradle
+        key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+        restore-keys: |
+          buildozer-${{ runner.os }}-
 
-    - name: Build APK
+    - name: Install system dependencies
       run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          python3-pip python3-setuptools git zip unzip openjdk-17-jdk \
+          libffi-dev libssl-dev zlib1g-dev libncurses5 libstdc++6 \
+          automake autoconf libtool pkg-config
+        python -m pip install --upgrade pip wheel
+        # نسخه‌های پایدار برای کیوی/بیلدوذر
+        pip install --upgrade "cython<3.0" buildozer==1.5.0
+
+    - name: Build with Buildozer
+      env:
+        ANDROIDSDK: ${{ github.workspace }}/.android
+        ANDROIDNDK: ${{ github.workspace }}/.android/ndk
+        ANDROIDAPI: "31"
+        NDKAPI: "21"
+      run: |
+        # ساخت APK دیباگ؛ Buildozer خودش SDK/NDK را می‌گیرد
         buildozer -v android debug
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v3
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
       with:
         name: tradebot-apk
         path: bin/*.apk
