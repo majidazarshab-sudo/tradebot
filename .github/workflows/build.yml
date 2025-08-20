@@ -18,8 +18,8 @@ jobs:
       with:
         python-version: '3.10'
 
-    # کش Buildozer/Gradle برای سریع‌تر شدن بیلدهای بعدی
-    - name: Cache .buildozer
+    # کش برای سریع‌تر شدن بیلدهای بعدی
+    - name: Cache Android & Buildozer
       uses: actions/cache@v4
       with:
         path: |
@@ -37,21 +37,22 @@ jobs:
           libffi-dev libssl-dev zlib1g-dev libncurses5 libstdc++6 \
           automake autoconf libtool pkg-config
         python -m pip install --upgrade pip wheel
-        # نسخه‌های پایدار برای کیوی/بیلدوذر
-        pip install --upgrade "cython<3.0" buildozer==1.5.0
+        pip install "cython<3.0" buildozer==1.5.0
 
-    - name: Build with Buildozer
+    - name: Show Buildozer version
+      run: buildozer --version
+
+    - name: Build APK (debug)
       env:
         ANDROIDSDK: ${{ github.workspace }}/.android
         ANDROIDNDK: ${{ github.workspace }}/.android/ndk
         ANDROIDAPI: "31"
         NDKAPI: "21"
       run: |
-        # ساخت APK دیباگ؛ Buildozer خودش SDK/NDK را می‌گیرد
         buildozer -v android debug
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: tradebot-apk
-        path: bin/*.apk
+        path: bin/*.apk
