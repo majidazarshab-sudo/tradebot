@@ -5,13 +5,20 @@ package.domain = org.tradebot
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 0.5
-requirements = python3,kivy,telethon,requests
+
+# نسخه‌های پین‌شده که با بیلد ابری بهتر جواب می‌دهند
+requirements = python3,kivy==2.3.0,telethon==1.35.0,requests==2.32.3
+
 orientation = portrait
 fullscreen = 0
 
-[buildozer]
-log_level = 2
-warn_on_root = 1
+# ---- Android ----
+android.api = 31
+android.minapi = 21
+android.ndk = 25b
+android.accept_sdk_license = True
+android.archs = arm64-v8a, armeabi-v7a
+p4a.branch = stable
 
-[android]
-android.permissions = INTERNET
+# در صورت نیاز به دسترسی‌های بیشتر اینجا اضافه کن
+# android.permissions = INTERNET
